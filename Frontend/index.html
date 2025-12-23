@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users CRUD</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>User Form</h2>
+
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="phone" placeholder="Phone">
+<input id="address" placeholder="Address">
+
+<button onclick="addUser()">Add User</button>
+<button onclick="updateUser()">Update User</button>
+<input type="file" id="excelFile" accept=".xlsx" />
+<button onclick="uploadExcel()">Upload Excel</button>
+
+
+
+<hr>
+
+<h2>Users List</h2>
+<button onclick="loadUsers()">Load Users</button>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Sr No</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone No</th>
+            <th>Address</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="usersTableBody">
+    
+    </tbody>
+</table>
+
+
+<script src="script.js"></script>
+</body>
+</html>
