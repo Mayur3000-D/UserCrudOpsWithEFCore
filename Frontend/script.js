@@ -29,12 +29,18 @@ function loadUsers() {
     fetch(API_URL)
         .then(res => res.json())
         .then(data => {
+            // Existing CRUD table
             const tableBody = document.getElementById("usersTableBody");
             tableBody.innerHTML = "";
 
-            data.forEach((u, index) => {
-                const row = document.createElement("tr");
+            // Email table
+            const emailTableBody = document.getElementById("emailUsersTableBody");
+            emailTableBody.innerHTML = "";
 
+            data.forEach((u, index) => {
+
+                // -------- CRUD TABLE --------
+                const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${u.name}</td>
@@ -46,8 +52,18 @@ function loadUsers() {
                         <button onclick="deleteUser(${u.id})">Delete</button>
                     </td>
                 `;
-
                 tableBody.appendChild(row);
+
+                // -------- EMAIL TABLE --------
+                const emailRow = document.createElement("tr");
+                emailRow.innerHTML = `
+                    <td>
+                        <input type="checkbox" class="email-checkbox" value="${u.id}">
+                    </td>
+                    <td>${u.name}</td>
+                    <td>${u.email}</td>
+                `;
+                emailTableBody.appendChild(emailRow);
             });
         });
 }
@@ -128,4 +144,64 @@ function uploadExcel() {
     })
     .catch(err => console.error(err));
 }
+
+// Email select deselect
+function toggleSelectAllEmails() {
+    const isChecked = document.getElementById("selectAllEmails").checked;
+
+    document.querySelectorAll(".email-checkbox").forEach(cb => {
+        cb.checked = isChecked;
+    });
+}
+
+
+// Send-Email function
+function sendEmail() {
+    const subject = document.getElementById("emailSubject").value;
+    const message = document.getElementById("emailMessage").value;
+
+    const selectedUserIds = Array.from(
+        document.querySelectorAll(".email-checkbox:checked")
+    ).map(cb => parseInt(cb.value));
+
+    if (!subject || !message) {
+        alert("Subject and message are required");
+        return;
+    }
+
+    if (selectedUserIds.length === 0) {
+        alert("Please select at least one user");
+        return;
+    }
+
+    fetch("http://localhost:5000/api/Users/send-email", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            userIds: selectedUserIds,
+            subject: subject,
+            message: message
+        })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Failed to send email");
+        return res.text();
+    })
+    .then(msg => {
+        alert(msg);
+        document.getElementById("emailSubject").value = "";
+        document.getElementById("emailMessage").value = "";
+        document.getElementById("selectAllEmails").checked = false;
+
+        document.querySelectorAll(".email-checkbox").forEach(cb => cb.checked = false);
+    })
+    .catch(err => {
+        alert("Error sending email");
+        console.error(err);
+    });
+}
+
+
 

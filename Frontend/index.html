@@ -42,6 +42,39 @@
     </tbody>
 </table>
 
+<!-- Sending Multiple Emails Functionality -->
+<hr>
+
+<h2>Send Email to Users</h2>
+
+<input id="emailSubject" placeholder="Subject" style="width: 400px;"><br><br>
+
+<textarea id="emailMessage" placeholder="Message" rows="5" style="width: 400px;"></textarea><br><br>
+
+<button onclick="sendEmail()">Send Email</button>
+
+<br><br>
+
+<label>
+    <input type="checkbox" id="selectAllEmails" onclick="toggleSelectAllEmails()">
+    Select All
+</label>
+
+<br><br>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Select</th>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody id="emailUsersTableBody">
+    </tbody>
+</table>
+
+
 
 <script src="script.js"></script>
 </body>

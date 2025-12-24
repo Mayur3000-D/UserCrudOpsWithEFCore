@@ -1,4 +1,6 @@
 ﻿using CRUD_Ops.Data;
+using CRUD_Ops.DTOs;
+using CRUD_Ops.Services;
 using CRUD_Ops.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,20 +13,23 @@ namespace CRUD_Ops.Controllers
     public class UsersController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public UsersController(AppDbContext context)
+        // ✅ Constructor with BOTH dependencies injected
+        public UsersController(AppDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
-        //api call---api/ControllerName/MethodeName
-        // 🟢 GET: api/Persons/GetAllUsersword
+
+        // 🟢 GET: api/users
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
             var users = await _context.Users.ToListAsync();
             return Ok(users);
         }
-        //api/ControllerName/MethodeName/4
+
         // 🟢 GET: api/users/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
@@ -81,8 +86,7 @@ namespace CRUD_Ops.Controllers
             return NoContent();
         }
 
-
-        //UPLOAD-EXCEL
+        // 🟢 UPLOAD USERS FROM EXCEL
         [HttpPost("upload-excel")]
         public async Task<IActionResult> UploadExcel(IFormFile file)
         {
@@ -122,7 +126,37 @@ namespace CRUD_Ops.Controllers
             return Ok($"{users.Count} users uploaded successfully");
         }
 
+        // 🟢 SEND EMAIL TO SELECTED USERS
+        [HttpPost("send-email")]
+        public async Task<IActionResult> SendEmailToSelectedUsers(
+            SendEmailRequestDto request)
+        {
+            // Validation
+            if (request.UserIds == null || !request.UserIds.Any())
+                return BadRequest("No users selected.");
 
+            if (string.IsNullOrWhiteSpace(request.Subject) ||
+                string.IsNullOrWhiteSpace(request.Message))
+                return BadRequest("Subject and message are required.");
 
+            // Fetch selected users
+            var users = await _context.Users
+                .Where(u => request.UserIds.Contains(u.Id))
+                .ToListAsync();
+
+            foreach (var user in users)
+            {
+                if (!string.IsNullOrWhiteSpace(user.Email))
+                {
+                    await _emailService.SendEmailAsync(
+                        user.Email,
+                        request.Subject,
+                        request.Message
+                    );
+                }
+            }
+
+            return Ok("Email sent successfully to selected users.");
+        }
     }
 }

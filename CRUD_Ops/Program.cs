@@ -1,4 +1,5 @@
 ﻿using CRUD_Ops.Data;
+using CRUD_Ops.Services;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 
@@ -23,6 +24,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 
 var app = builder.Build();
 
